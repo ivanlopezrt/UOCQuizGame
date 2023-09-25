@@ -18,7 +18,7 @@ public class PlaceholderContent {
     /**
      * An array of sample (placeholder) items.
      */
-    public static final List<PlaceholderItem> ITEMS = new ArrayList<PlaceholderItem>();
+    public static final List<PlaceholderItem> UNITS = new ArrayList<PlaceholderItem>();
     private static String[]description = new String[]{"Introducción a los sistemas de comunicación inalámbricos",
             "Introducción a los dispositivos móviles",
             "Entornos de programación móviles",
@@ -32,7 +32,7 @@ public class PlaceholderContent {
      */
     public static final Map<String, PlaceholderItem> ITEM_MAP = new HashMap<String, PlaceholderItem>();
 
-    private static final int COUNT = 6;
+    public static final int COUNT = 6;
 
     static {
         // Add some sample items.
@@ -42,7 +42,7 @@ public class PlaceholderContent {
     }
 
     private static void addItem(PlaceholderItem item) {
-        ITEMS.add(item);
+        UNITS.add(item);
         ITEM_MAP.put(item.id, item);
     }
 

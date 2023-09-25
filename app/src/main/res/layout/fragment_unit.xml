@@ -3,12 +3,14 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/cardView"
         app:cardBackgroundColor="#FFF"
         app:cardCornerRadius="10dp"
         app:cardElevation="3dp"
         app:cardPreventCornerOverlap="true"
         app:cardUseCompatPadding="true"
         app:contentPadding="10dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -29,15 +31,15 @@
 
             <TextView
                 android:id="@+id/txtUnitName"
-                android:layout_width="240dp"
-                android:layout_height="59dp"
+                android:layout_width="196dp"
+                android:layout_height="56dp"
                 android:layout_marginStart="16dp"
                 android:text="UnitName"
                 android:textSize="14sp"
                 android:textStyle="bold|italic"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/imgIcon"
-                app:layout_constraintTop_toTopOf="@+id/imgIcon"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.0" />
 
             <ImageButton
