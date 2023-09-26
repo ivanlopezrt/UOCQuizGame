@@ -2,6 +2,7 @@ package com.example.uocquizgame;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,20 +23,43 @@ public class MyQuestionRecyclerViewAdapter extends RecyclerView.Adapter<MyQuesti
 
     public MyQuestionRecyclerViewAdapter(List<QuizContent.Question> items) {
         mValues = items;
+        GameController controller=GameController.getInstance();
+        controller.addQuestionObserver(new GameController.GameControllerQuestionObserver() {
+            @Override
+            public void onQuestionChanged() {
+                notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
         return new ViewHolder(FragmentQuestionBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
-
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).toString());
-        holder.mContentView.setText(mValues.get(position).toString());
+        GameController controller=GameController.getInstance();
+
+        if(controller.getCurrentQuestion()!=QuizContent.ITEMS.size()) {
+            QuizContent.Answer answer = QuizContent.ITEMS.get(controller.getCurrentQuestion()).getPossibleAnswers().get(position);
+            holder.mItem = answer;
+            holder.mContentView.setText(answer.description);
+
+
+            holder.mContentView.setOnClickListener(view -> {
+                if (answer.isRightAnswer) {
+                    controller.setCorrectAnswersInCurrentTest(controller.getCorrectAnswersInCurrentTest() + 1);
+                    controller.updateScore(1);
+                }
+
+                if (controller.getCurrentQuestion() != QuizContent.ITEMS.size()) {
+                    controller.setCurrentQuestion(controller.getCurrentQuestion() + 1);
+                }
+            });
+        }
+        else
+            Log.d("UOC","END OF TEST");
     }
 
     @Override
@@ -44,13 +68,11 @@ public class MyQuestionRecyclerViewAdapter extends RecyclerView.Adapter<MyQuesti
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final TextView mIdView;
         public final TextView mContentView;
-        public QuizContent.Question mItem;
+        public QuizContent.Answer mItem;
 
         public ViewHolder(FragmentQuestionBinding binding) {
             super(binding.getRoot());
-            mIdView = binding.itemNumber;
             mContentView = binding.content;
         }
 

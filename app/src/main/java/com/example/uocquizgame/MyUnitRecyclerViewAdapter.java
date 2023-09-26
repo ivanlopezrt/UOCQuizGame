@@ -1,16 +1,15 @@
 package com.example.uocquizgame;
 
 import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.uocquizgame.placeholder.PlaceholderContent.PlaceholderItem;
 import com.example.uocquizgame.databinding.FragmentUnitBinding;
@@ -30,6 +29,13 @@ public class MyUnitRecyclerViewAdapter extends RecyclerView.Adapter<MyUnitRecycl
     public MyUnitRecyclerViewAdapter(List<PlaceholderItem> items, Context context) {
         mValues = items;
         this.context=context;
+        GameController controller=GameController.getInstance();
+        controller.addUnitObserver(new GameController.GameControllerUnitObserver() {
+            @Override
+            public void onQuizStateChanged() {
+                notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
@@ -46,21 +52,22 @@ public class MyUnitRecyclerViewAdapter extends RecyclerView.Adapter<MyUnitRecycl
         switch(controller.unitsPassed[position]){
             case PASSED:
                 holder.mCardView.setBackground(context.getDrawable(R.drawable.gradient_green_color));
+                break;
             case FAILED:
                 holder.mCardView.setBackground(context.getDrawable(R.drawable.gradient_red_color));
+                break;
             default:
                 //nothing to be done!
         }
-        controller.addObserver(new GameController.GameControllerObserver() {
-            @Override
-            public void onQuizStateChanged() {
-                notifyDataSetChanged();
-            }
-        });
+
         holder.mCardView.setOnClickListener(view -> {
-            Intent i=new Intent(context,QuestionsActivity.class);
-            i.putExtra("quiz_number",position);
-            context.startActivity(i);
+            if(controller.unitsPassed[position]!=GameController.UnitType.PASSED) {
+                Intent i = new Intent(context, QuestionsActivity.class);
+                i.putExtra("quiz_number", position);
+                context.startActivity(i);
+            }
+            else
+                Toast.makeText(context.getApplicationContext(), "You have already passed this test!",Toast.LENGTH_LONG).show();
         });
 
     }

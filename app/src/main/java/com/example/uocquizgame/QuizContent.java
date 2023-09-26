@@ -1,7 +1,6 @@
 package com.example.uocquizgame;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,13 +13,15 @@ import java.util.List;
 
 public class QuizContent {
     public static List<Question> ITEMS = new ArrayList<Question>();
+    public static String[] jsonFiles=new String[]{"questionsList1.json","questionsList2.json","questionsList3.json","questionsList4.json","questionsList5.json","questionsList6.json"};
 
-    public static void loadQuestionsFromJSON(Context c) {
 
+    public static void loadQuestionsFromJSON(Context c, int number) {
+        ITEMS.clear();
         String json = null;
         try {
             InputStream is =
-                    c.getAssets().open("questions.json");
+                    c.getAssets().open(jsonFiles[number]);
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
@@ -35,7 +36,7 @@ public class QuizContent {
                 String title = jsonQuestion.getString("title");
 
                 Question q=new Question(title);
-                JSONArray answerList = jsonObject.getJSONArray("answers");
+                JSONArray answerList = jsonQuestion.getJSONArray("answers");
                 for (int j=0;j<answerList.length();j++){
                     JSONObject jsonAnswer=answerList.getJSONObject(j);
                     String answer=jsonAnswer.getString("answer");
@@ -52,6 +53,15 @@ public class QuizContent {
 
     public static class Question {
         private String title;
+
+        public List<Answer> getPossibleAnswers() {
+            return possibleAnswers;
+        }
+
+        public void setPossibleAnswers(List<Answer> possibleAnswers) {
+            this.possibleAnswers = possibleAnswers;
+        }
+
         private List<Answer> possibleAnswers= new ArrayList<Answer>();
 
         public String getTitle() {
