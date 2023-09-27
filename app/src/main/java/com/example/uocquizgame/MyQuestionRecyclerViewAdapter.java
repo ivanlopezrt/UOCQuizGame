@@ -1,5 +1,6 @@
 package com.example.uocquizgame;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -21,15 +22,18 @@ public class MyQuestionRecyclerViewAdapter extends RecyclerView.Adapter<MyQuesti
 
     private final List<QuizContent.Question> mValues;
 
+    private GameController.GameControllerQuestionObserver observer;
+    private GameController controller;
     public MyQuestionRecyclerViewAdapter(List<QuizContent.Question> items) {
         mValues = items;
-        GameController controller=GameController.getInstance();
-        controller.addQuestionObserver(new GameController.GameControllerQuestionObserver() {
+        controller=GameController.getInstance();
+        observer=new GameController.GameControllerQuestionObserver() {
             @Override
             public void onQuestionChanged() {
                 notifyDataSetChanged();
             }
-        });
+        };
+        controller.addQuestionObserver(observer);
     }
 
     @Override
@@ -39,8 +43,6 @@ public class MyQuestionRecyclerViewAdapter extends RecyclerView.Adapter<MyQuesti
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        GameController controller=GameController.getInstance();
-
         if(controller.getCurrentQuestion()!=QuizContent.ITEMS.size()) {
             QuizContent.Answer answer = QuizContent.ITEMS.get(controller.getCurrentQuestion()).getPossibleAnswers().get(position);
             holder.mItem = answer;
@@ -80,5 +82,11 @@ public class MyQuestionRecyclerViewAdapter extends RecyclerView.Adapter<MyQuesti
         public String toString() {
             return super.toString() + " '" + mContentView.getText() + "'";
         }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        controller.removeQuestionObserver(observer);
+        super.finalize();
     }
 }

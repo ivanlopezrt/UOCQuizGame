@@ -13,6 +13,7 @@ public class QuestionsActivity extends AppCompatActivity {
     TextView counter;
     TextView txtQuestion;
     GameController controller;
+    GameController.GameControllerQuestionObserver observer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +25,7 @@ public class QuestionsActivity extends AppCompatActivity {
         controller=GameController.getInstance();
         controller.initTest();
         loadQuiz(quizNumber);
-        controller.addQuestionObserver(new GameController.GameControllerQuestionObserver() {
+        observer=new GameController.GameControllerQuestionObserver() {
             @Override
             public void onQuestionChanged() {
                 if(controller.getCurrentQuestion()==QuizContent.ITEMS.size()){
@@ -43,10 +44,9 @@ public class QuestionsActivity extends AppCompatActivity {
                     txtQuestion.setText(QuizContent.ITEMS.get(controller.getCurrentQuestion()).getTitle());
                     txtProgress.setText("Question " + (controller.getCurrentQuestion() + 1) + "/" + QuizContent.ITEMS.size() + " - Right Answers: " + controller.getCorrectAnswersInCurrentTest());
                 }
-
             }
-        });
-
+        };
+        controller.addQuestionObserver(observer);
         controller.setCurrentUnit(quizNumber);
 
 
@@ -90,4 +90,9 @@ public class QuestionsActivity extends AppCompatActivity {
         QuizContent.loadQuestionsFromJSON(this,number);
     }
 
+    @Override
+    protected void onDestroy() {
+        controller.removeQuestionObserver(observer);
+        super.onDestroy();
+    }
 }

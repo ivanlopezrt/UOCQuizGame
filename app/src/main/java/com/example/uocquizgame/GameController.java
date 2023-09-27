@@ -1,6 +1,9 @@
 package com.example.uocquizgame;
 
+import android.util.Log;
+
 import java.util.ArrayList;
+
 
 public class GameController {
     private static GameController instance;
@@ -106,7 +109,7 @@ public class GameController {
     }
 
     public void removeUnitObserver(GameControllerUnitObserver observer) {
-        unitObservers.remove(observer);
+        unitObservers.add(observer);
     }
 
     private void notifyUnitObservers() {
@@ -120,6 +123,7 @@ public class GameController {
             observer.onQuestionChanged();
         }
     }
+
     public void addQuestionObserver(GameControllerQuestionObserver observer) {
         questionObservers.add(observer);
     }
