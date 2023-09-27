@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
                 GameController controller=GameController.getInstance();
                 controller.setPlayer(edUserName.getText().toString());
                 Intent intent = new Intent(MainActivity.this, QuizActivity.class);
-                MainActivity.this.startActivity(intent);
+                startActivity(intent);
             }
         });
 

@@ -27,9 +27,6 @@ public class PlaceholderContent {
             "Seguridad en dispositivos móviles"};
     private static int[] images = new int[]{R.drawable.icon1, R.drawable.icon2, R.drawable.icon3, R.drawable.icon4, R.drawable.icon5, R.drawable.icon6};
 
-    /**
-     * A map of sample (placeholder) items, by ID.
-     */
     public static final Map<String, PlaceholderItem> ITEM_MAP = new HashMap<String, PlaceholderItem>();
 
     public static final int COUNT = 6;
@@ -45,8 +42,6 @@ public class PlaceholderContent {
         UNITS.add(item);
         ITEM_MAP.put(item.id, item);
     }
-
-
 
     private static PlaceholderItem createPlaceholderItem(int position) {
         return new PlaceholderItem(String.valueOf(position), description[position], images[position]);

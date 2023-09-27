@@ -2,48 +2,42 @@ package com.example.uocquizgame;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.uocquizgame.R;
 import com.example.uocquizgame.placeholder.PlaceholderContent;
 
 public class QuestionsActivity extends AppCompatActivity {
+    private final int TIME_OUT=30000;
+
     TextView counter;
     TextView txtQuestion;
+    TextView txtUnitTitle;
+    ImageView imgUnit;
+    int quizNumber;
     GameController controller;
     GameController.GameControllerQuestionObserver observer;
-
+    TextView txtProgress;
+    CountDownTimer countDownTimer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_questions);
-        int quizNumber=getIntent().getExtras().getInt("quiz_number");
-        TextView txtQuestion=findViewById(R.id.txtQuestion);
-        TextView txtProgress=findViewById(R.id.txtProgress);
+        quizNumber=getIntent().getExtras().getInt("quiz_number");
+        txtQuestion=findViewById(R.id.txtQuestion);
+        txtUnitTitle=findViewById(R.id.txtUnitTitle);
+        imgUnit =findViewById(R.id.imgUnit);
+        txtProgress=findViewById(R.id.txtProgress);
         controller=GameController.getInstance();
         controller.initTest();
         loadQuiz(quizNumber);
         observer=new GameController.GameControllerQuestionObserver() {
             @Override
             public void onQuestionChanged() {
-                if(controller.getCurrentQuestion()==QuizContent.ITEMS.size()){
-                    if(QuizContent.ITEMS.size()==controller.getCorrectAnswersInCurrentTest()) {
-                        controller.changeUnitState(GameController.UnitType.PASSED,quizNumber);
-                        txtProgress.setText("END OF TEST: Total Right Answers: "+controller.getCorrectAnswersInCurrentTest()+" - TEST PASSED!");
-                        controller.updateLevel();
-                        controller.updateScore(10);
-                    }
-                    else {
-                        controller.changeUnitState(GameController.UnitType.FAILED,quizNumber);
-                        txtProgress.setText("END OF TEST: Total Right Answers: "+controller.getCorrectAnswersInCurrentTest()+" - TEST FAILED!");
-                    }
-                }
-                else {
-                    txtQuestion.setText(QuizContent.ITEMS.get(controller.getCurrentQuestion()).getTitle());
-                    txtProgress.setText("Question " + (controller.getCurrentQuestion() + 1) + "/" + QuizContent.ITEMS.size() + " - Right Answers: " + controller.getCorrectAnswersInCurrentTest());
-                }
+                checkUnitPassed();
             }
         };
         controller.addQuestionObserver(observer);
@@ -51,40 +45,59 @@ public class QuestionsActivity extends AppCompatActivity {
 
 
         txtQuestion.setText(QuizContent.ITEMS.get(controller.getCurrentQuestion()).getTitle());
+        txtUnitTitle.setText(PlaceholderContent.UNITS.get(quizNumber).description);
+        txtProgress.setText("Question " + (controller.getCurrentQuestion() + 1) + "/" + QuizContent.ITEMS.size() + " - Right Answers: " + controller.getCorrectAnswersInCurrentTest());
+        imgUnit.setImageResource(PlaceholderContent.UNITS.get(quizNumber).icon);
         counter=findViewById(R.id.txtCounter);
 
-        CountDownTimer countDownTimer=new CountDownTimer(5000,1000) {
+        countDownTimer=new CountDownTimer(TIME_OUT,1000){
             @Override
             public void onTick(long l) {
-                counter.setText("Test starts in "+l/1000+" seconds");
+                counter.setText(l/1000+" seconds left");
             }
 
             @Override
             public void onFinish() {
-                counter.setText("GO!");
-                CountDownTimer countDownTimer2=new CountDownTimer(60000,1000){
-                    @Override
-                    public void onTick(long l) {
-                        counter.setText(l/1000+" seconds left");
-                    }
-
-                    @Override
-                    public void onFinish() {
-                        int totalQuestions=QuizContent.ITEMS.size();
-                        if(totalQuestions==controller.getCorrectAnswersInCurrentTest()) {
-                            counter.setText("You got all the questions right!");
-                            GameController.getInstance().changeUnitState(GameController.UnitType.PASSED,quizNumber);
-                        }
-                        else {
-                            counter.setText("You got " + controller.getCorrectAnswersInCurrentTest() + " out of " + totalQuestions + " questions right");
-                            GameController.getInstance().changeUnitState(GameController.UnitType.FAILED,quizNumber);
-                        }
-                    }
-                }.start();
+                controller.setCurrentQuestion(QuizContent.ITEMS.size()); //disable further answers
+                play(R.raw.gong);
+                checkUnitPassed();
             }
-        };
-        countDownTimer.start();
+        }.start();
+
     }
+
+    private void checkUnitPassed(){
+        if(controller.getCurrentQuestion()==QuizContent.ITEMS.size() ){
+            if(QuizContent.ITEMS.size()==controller.getCorrectAnswersInCurrentTest()) {
+                controller.changeUnitState(GameController.UnitType.PASSED,quizNumber);
+                txtProgress.setText("END OF TEST: Total Right Answers: "+controller.getCorrectAnswersInCurrentTest()+" - TEST PASSED!");
+                controller.updateLevel();
+                controller.updateScore(10);
+                play(R.raw.cheer);
+                countDownTimer.cancel();
+                counter.setText("FINISHED! WELL DONE!");
+
+            }
+            else {
+                controller.changeUnitState(GameController.UnitType.FAILED,quizNumber);
+                txtProgress.setText("END OF TEST: Total Right Answers: "+controller.getCorrectAnswersInCurrentTest()+" - TEST FAILED!");
+                play(R.raw.fail);
+                countDownTimer.cancel();
+                counter.setText("FINISHED! TEST FAILED!");
+            }
+        }
+        else {
+            txtQuestion.setText(QuizContent.ITEMS.get(controller.getCurrentQuestion()).getTitle());
+            txtProgress.setText("Question " + (controller.getCurrentQuestion() + 1) + "/" + QuizContent.ITEMS.size() + " - Right Answers: " + controller.getCorrectAnswersInCurrentTest());
+        }
+    }
+
+    private void play(int resource){
+        MediaPlayer mp=MediaPlayer.create(this,resource);
+        mp.start();
+    }
+
+
 
     public void loadQuiz(int number){
         QuizContent.loadQuestionsFromJSON(this,number);

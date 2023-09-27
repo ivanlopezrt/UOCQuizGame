@@ -6,16 +6,31 @@ import java.util.ArrayList;
 
 
 public class GameController {
+    //unique object in the system
     private static GameController instance;
+
+    //ENUM for Unit states
+    public enum UnitType{
+        NOT_ANSWERED, FAILED, PASSED
+    }
+
+    //arrays of observers
     private ArrayList<GameControllerUnitObserver> unitObservers = new ArrayList<>();
     private ArrayList<GameControllerQuestionObserver> questionObservers = new ArrayList<>();
     private ArrayList<GameControllerScoreObserver> scoreObservers = new ArrayList<>();
 
-    // Variables de instancia
+    // Instance variables
     private int score;
     private int level;
-
+    private int currentUnit=0; //correct answers in the current test
     private int correctAnswersInCurrentTest=0; //correct answers in the current test
+    private int currentQuestion=0;
+    private String player;
+
+    //array with the states of the 6 units: initially all the units are "NOT_ANSWERED"
+    public UnitType [] unitsPassed = new UnitType[]{UnitType.NOT_ANSWERED,UnitType.NOT_ANSWERED,UnitType.NOT_ANSWERED,UnitType.NOT_ANSWERED,UnitType.NOT_ANSWERED,UnitType.NOT_ANSWERED};
+
+    //SETTERS AND GETTERS
     public int getCorrectAnswersInCurrentTest() {
         return correctAnswersInCurrentTest;
     }
@@ -24,7 +39,6 @@ public class GameController {
         this.correctAnswersInCurrentTest = correct;
     }
 
-    private int currentUnit=0; //correct answers in the current test
     public int getCurrentUnit() {
         return currentUnit;
     }
@@ -47,14 +61,6 @@ public class GameController {
         notifyQuestionObservers();
     }
 
-    private int currentQuestion=0;
-    private String player;
-
-    public UnitType [] unitsPassed = new UnitType[]{UnitType.NOT_ANSWERED,UnitType.NOT_ANSWERED,UnitType.NOT_ANSWERED,UnitType.NOT_ANSWERED,UnitType.NOT_ANSWERED,UnitType.NOT_ANSWERED};
-
-    public enum UnitType{
-        NOT_ANSWERED, FAILED, PASSED
-    }
 
     public void changeUnitState(UnitType newState,int quiz){
         unitsPassed[quiz]=newState;
@@ -63,9 +69,10 @@ public class GameController {
 
     private GameController() {
         score = 0;
-        level = 1;
+        level = 0;
     }
 
+    // get the only instance in the system
     public static GameController getInstance() {
         if (instance == null) {
             instance = new GameController();
